@@ -7,22 +7,23 @@ import (
 	"net/http"
 )
 
-func GetLocations(url string) (LocationArea, error) {
-	var locations LocationArea	
+func GetLocations(url string) ([]byte, error) {
 	res, err := http.Get(url)
 	if err != nil {
-		return LocationArea{}, err	
+		return nil, err	
 	}
-	
+	defer res.Body.Close()
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		return LocationArea{}, err
-	}
-
-	err = json.Unmarshal(body, &locations)
-	if err != nil {
-		return LocationArea{}, err
+		return nil, err
 	}	
+	return body, nil
+}
 
-	return locations, nil
+func ResponseToStruct(bytes []byte, dest *LocationArea)  error {
+	err := json.Unmarshal(bytes, &dest);
+	if err != nil {
+		return err
+	}
+	return nil
 }
